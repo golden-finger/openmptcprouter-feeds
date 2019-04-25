@@ -9,11 +9,13 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=glorytun
-PKG_VERSION:=0.0.35
+#PKG_VERSION:=0.0.35
+PKG_VERSION:=0.1.1
 PKG_RELEASE:=6
 PKG_SOURCE:=glorytun-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=https://github.com/angt/glorytun/releases/download/v$(PKG_VERSION)
-PKG_HASH:=49e4d8ea4ff2990300b37947b0bd0da3c8e0985bc6eddf29f4146306188fff64
+#PKG_HASH:=49e4d8ea4ff2990300b37947b0bd0da3c8e0985bc6eddf29f4146306188fff64
+PKG_HASH:=e832ab103b87e7cc7be6f5512f338ded234b5b88edad0e9f44a4bb16f034999b
 
 include $(INCLUDE_DIR)/package.mk
 
@@ -26,7 +28,7 @@ URL:=https://github.com/angt/glorytun
 SUBMENU:=VPN
 endef
 
-TARGET_CFLAGS += -std=c99 -D_GNU_SOURCE
+TARGET_CFLAGS += -std=c99 -D_GNU_SOURCE -DGT_RUNDIR=\\\"/var/run/glorytun\\\"
 
 define Package/$(PKG_NAME)/conffiles
 /etc/config/glorytun

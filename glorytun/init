@@ -31,6 +31,25 @@ validate_section() {
 		'proto:string'
 }
 
+dd_procd_set_param() {
+
+  procd_set_param $*
+  log="/tmp/dd/$1.log"
+  shift
+  echo -n "$*" > $log
+
+}
+
+dd_procd_append_param() {
+
+  procd_append_param $*
+  log="/tmp/dd/$1.log"
+  shift
+  echo -n " $*" >> $log
+
+}
+
+
 start_instance() {
 	local enable key host port dev listener mptcp proto chacha20
 
@@ -65,20 +84,11 @@ start_instance() {
 	procd_open_instance
 
 	procd_set_param command ${PROG} \
+		bind $host $port \
 		keyfile /tmp/${PROG_NAME}-${1}.key \
-		${port:+port "$port"} \
-		${host:+host "$host"} \
 		${dev:+dev "$dev"} 
 
-	[ "${listener}" = "1" ] && procd_append_param command listener
-	[ "${mptcp}" = "1" ] && procd_append_param command mptcp
-	[ "${chacha20}" = "1" ] && procd_append_param command chacha20
-
-	procd_append_param command \
-		retry count -1 const 5000000 \
-		timeout 10000 \
-		keepalive count 5 idle 10 interval 2 \
-		buffer-size 32768
+	[ "${chacha20}" = "1" ] && procd_append_param command chacha
 
 	procd_set_param respawn 0 30 0
 	procd_set_param file /tmp/${PROG_NAME}-${1}.key
