@@ -26,6 +26,8 @@ validate_section() {
 		'key:string'         \
 		'host:host'          \
 		'port:port'          \
+		'bind:host'          \
+		'bindport:port'      \
 		'dev:string'         \
 		'chacha20:bool:0'    \
 		'proto:string'
@@ -51,7 +53,7 @@ dd_procd_append_param() {
 
 
 start_instance() {
-	local enable key host port dev listener mptcp proto chacha20
+	local enable key host port bind bindport dev listener mptcp proto chacha20
 
 	validate_section "${1}" || {
 		_err "validation failed"
@@ -83,10 +85,17 @@ start_instance() {
 
 	procd_open_instance
 
-	procd_set_param command ${PROG} \
-		bind $host $port \
-		keyfile /tmp/${PROG_NAME}-${1}.key \
-		${dev:+dev "$dev"} 
+	if [ "${listener}" = "1" ]; then
+		procd_set_param command ${PROG} \
+                        bind $bind $bindport \
+                        keyfile /tmp/${PROG_NAME}-${1}.key \
+                        ${dev:+dev "$dev"}
+	else
+		procd_set_param command ${PROG} \
+			bind $bind $bindport to $host $port \
+			keyfile /tmp/${PROG_NAME}-${1}.key \
+			${dev:+dev "$dev"} 
+	fi
 
 	[ "${chacha20}" = "1" ] && procd_append_param command chacha
 
